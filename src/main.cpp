@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include "painlessMesh.h"
 
+#include "smartCaravanNode.h"
+
 #define   MESH_PREFIX     "MicroCloudMesh"
 #define   MESH_PASSWORD   "microcloud"
 #define   MESH_PORT       5555
@@ -44,6 +46,7 @@ void setup()
   delay(15000);
   powerOnSelfTest();
   long secondsToWait = random(1,10000);
+  // This is a test
   //mesh.setDebugMsgTypes( ERROR | MESH_STATUS | CONNECTION | SYNC | COMMUNICATION | GENERAL | MSG_TYPES | REMOTE ); // all types on
   mesh.setDebugMsgTypes( ERROR | STARTUP );  // set before init() so that you can see startup messages
 
