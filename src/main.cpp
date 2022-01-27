@@ -7,38 +7,12 @@
 #define   MESH_PASSWORD   "microcloud"
 #define   MESH_PORT       5555
 
-Scheduler userScheduler; // to control your personal task
-painlessMesh  mesh;
+using namespace MicroCloudNode;
 
 // User stub
-void sendMessage() ; // Prototype so PlatformIO doesn't complain
 void powerOnSelfTest();
 
-Task taskSendMessage( TASK_SECOND * 1 , TASK_FOREVER, &sendMessage );
-
-void sendMessage() {
-  String msg = "Hi from node2";
-  msg += mesh.getNodeId();
-  mesh.sendBroadcast( msg );
-  taskSendMessage.setInterval( random( TASK_SECOND * 1, TASK_SECOND * 5 ));
-}
-
 // Needed for painless library
-void receivedCallback( uint32_t from, String &msg ) {
-  Serial.printf("startHere: Received from %u msg=%s\n\r", from, msg.c_str());
-}
-
-void newConnectionCallback(uint32_t nodeId) {
-    Serial.printf("--> startHere: New Connection, nodeId = %u\n\r", nodeId);
-}
-
-void changedConnectionCallback() {
-  Serial.printf("Changed connections\n\r");
-}
-
-void nodeTimeAdjustedCallback(int32_t offset) {
-    Serial.printf("Adjusted time %u. Offset = %d\n\r", mesh.getNodeTime(),offset);
-}
 
 void setup()
 {
@@ -46,7 +20,6 @@ void setup()
   delay(15000);
   powerOnSelfTest();
   long secondsToWait = random(1,10000);
-  // This is a test
   //mesh.setDebugMsgTypes( ERROR | MESH_STATUS | CONNECTION | SYNC | COMMUNICATION | GENERAL | MSG_TYPES | REMOTE ); // all types on
   mesh.setDebugMsgTypes( ERROR | STARTUP );  // set before init() so that you can see startup messages
 
@@ -55,10 +28,15 @@ void setup()
   mesh.onNewConnection(&newConnectionCallback);
   mesh.onChangedConnections(&changedConnectionCallback);
   mesh.onNodeTimeAdjusted(&nodeTimeAdjustedCallback);
+  
+  heartBeatType hb = {
 
-  userScheduler.addTask( taskSendMessage );
+  };
+
+  node.setHeartBeat(hb);
+  node.startHeartBeat();
   //userScheduler.addTask();
-  taskSendMessage.enable();
+  //taskSendMessage.enable();
 }
 
 void loop()
