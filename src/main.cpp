@@ -31,8 +31,8 @@ void setup()
   mesh.onNodeTimeAdjusted(&nodeTimeAdjustedCallback);
 
   // nodes need to assign tasks to self during this period
-  //userScheduler.addTask();
-  //taskSendMessage.enable();
+  userScheduler.addTask(taskHeartBeat);
+  taskHeartBeat.enable();
 }
 
 void loop()
@@ -93,6 +93,7 @@ void powerOnSelfTest()
     break;
   default:
     Serial.println("* > Unsupported/Unknown Card Type.");
+    Serial.println("***********************************************");
     while(1);
     break;
   }
@@ -103,56 +104,78 @@ void powerOnSelfTest()
   if(!listDir(SD, "/", 0))
   {
     Serial.println("* > Critical Test Failed.");
+    Serial.println("***********************************************");
+    while(1);
   }
   Serial.println("* > Performing directory creation test...");
   if(!createDir(SD, "/mydir"))
   {
     Serial.println("* > Critical Test Failed.");
+    Serial.println("***********************************************");
+    while(1);
   }
   Serial.println("* > Performing second list directory test...");
   if(!listDir(SD, "/", 0))
   {
     Serial.println("* > Critical Test Failed.");
+    Serial.println("***********************************************");
+    while(1);
   }
   Serial.println("* > Performing directory removal test...");
   if(!removeDir(SD, "/mydir"))
   {
     Serial.println("* > Critical Test Failed.");
+    Serial.println("***********************************************");
+    while(1);
   }
   Serial.println("* > Performing third list directory test...");
   if(!listDir(SD, "/", 2))
   {
     Serial.println("* > Critical Test Failed.");
+    Serial.println("***********************************************");
+    while(1);
   }
   Serial.println("* > Performing file write test...");
   if(!writeFile(SD, "/hello.txt", "Hello "))
   {
     Serial.println("* > Critical Test Failed.");
+    Serial.println("***********************************************");
+    while(1);
   }
   Serial.println("* > Performing file append test...");
   if(!appendFile(SD, "/hello.txt", "World!\n"))
   {
-    Serial.println("* > Test Failed.");
+    Serial.println("* > Critical Test Failed.");
+    Serial.println("***********************************************");
+    while(1);
   }
   Serial.println("* > Performing file read test...");
   if(!readFile(SD, "/hello.txt"))
   {
-    Serial.println("* > Test Failed.");
+    Serial.println("* > Critical Test Failed.");
+    Serial.println("***********************************************");
+    while(1);
   }
   Serial.println("* > Performing file rename test...");
   if(!renameFile(SD, "/hello.txt", "/foo.txt"))
   {
-    Serial.println("* > Test Failed.");
+    Serial.println("* > Critical Test Failed.");
+    Serial.println("***********************************************");
+    while(1);
   }
   Serial.println("* > Performing file deletion test...");
   if(!deleteFile(SD, "/foo.txt"))
   {
-    Serial.println("* > Test Failed.");
+    Serial.println("* > Critical Test Failed.");
+    Serial.println("***********************************************");
+    while(1);
   }
   Serial.println("* > Performing final IO test...");
   if(!testFileIO(SD, "/test.txt"))
   {
-    Serial.println("* > Test Failed.");
+    Serial.println("* > Critical Test Failed.");
+    Serial.println("***********************************************");
+    while(1);
   }
   Serial.println("* > Total space: " + SD.totalBytes()/(1024 * 1024));
   Serial.println("* > Total space: " + SD.usedBytes()/(1024 * 1024));

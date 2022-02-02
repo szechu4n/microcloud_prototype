@@ -5,24 +5,22 @@ namespace MicroCloudNode
 
     void heartBeat()
     {
-        
+        String msg = "HB_";
+        msg += node.getNodeType().nodeName;
+        mesh.sendBroadcast(msg);
     }
 
     void receivedCallback( uint32_t from, String &msg ) 
     {
         // should split into different bws, where certain messages have a generic
         //      ID, application specific messages each have a special ID set.
-        Serial.printf("startHere: Received from %u msg=%s\n\r", from, msg.c_str());
+        Serial.println("** > Received from " + String(from) + " : "  + msg.c_str());
     }
 
     void newConnectionCallback(uint32_t nodeId) 
     {
-        // if currently has a task
-        // update node list
-        // declare node name and type
-        // otherwise
-        // update node list
-        Serial.printf("--> startHere: New Connection, nodeId = %u\n\r", nodeId);
+        // believe nodes automatically know all nodes connected to the network, need to test.
+        Serial.println("** > New Connection, nodeId = " + nodeId);
     }
 
     void changedConnectionCallback() 
