@@ -1,14 +1,8 @@
 #include "node.h"
 
+
 namespace MicroCloudNode
 {
-
-    void heartBeat()
-    {
-        String msg = "HB_";
-        msg += node.getNodeType().nodeName;
-        mesh.sendBroadcast(msg);
-    }
 
     void receivedCallback( uint32_t from, String &msg ) 
     {
@@ -53,7 +47,7 @@ namespace MicroCloudNode
         
     }
 
-    void Node::setHeartBeat(heartBeatType hb)
+    /*void Node::setHeartBeat(heartBeatType hb)
     {
 
     }
@@ -67,7 +61,7 @@ namespace MicroCloudNode
     {
         userScheduler.addTask(taskHeartBeat);
         taskHeartBeat.enable();
-    }
+    }*/
 
     void Node::setNodeType(const nodeType newNodeMode)
     {
@@ -89,13 +83,13 @@ namespace MicroCloudNode
         randomSeed(analogRead(A0));
     }
 
-    bool Node::startTask(Task* const &task)
+    void Node::startTask(Task* const &task)
     {
         userScheduler.addTask(*task);
         task->enable();
     }
 
-    bool Node::endCurrentTask()
+    void Node::endCurrentTask()
     {
         Task* task = (Task*) nodeMode.task;
         userScheduler.deleteTask(*task);

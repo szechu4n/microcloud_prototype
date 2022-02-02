@@ -8,7 +8,20 @@
 
 using namespace MicroCloudNode;
 
+Node node;
+painlessMesh mesh;
+Scheduler userScheduler;
+IPAddress myIP(0,0,0,0);
+IPAddress mqttBroker(192,168,1,1);
+WiFiClient wifiClient;
+PubSubClient mqttClient(mqttBroker, 1883, mqttCallback, wifiClient);
+
 void powerOnSelfTest();
+void heartBeat();
+Task taskHeartBeat(TASK_SECOND * 1 , TASK_FOREVER, &heartBeat);
+
+// Specific Task Definitions go here
+Task C3Node::c3Task(TASK_SECOND * 1 , TASK_FOREVER, &C3Node::c3Loop);
 
 void setup()
 {
@@ -39,6 +52,13 @@ void loop()
 {
   // it will run the user scheduler as well
   mesh.update();
+}
+
+void heartBeat()
+{
+  String msg = "HB_";
+  msg += node.getNodeType().nodeName;
+  mesh.sendBroadcast(msg);
 }
 
 void powerOnSelfTest()

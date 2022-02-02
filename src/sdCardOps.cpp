@@ -154,13 +154,14 @@ bool testFileIO(fs::FS &fs, const char * path){
     file.close();
   } else {
     Serial.println("Failed to open file for reading");
+    return false;
   }
 
 
   file = fs.open(path, FILE_WRITE);
   if(!file){
     Serial.println("Failed to open file for writing");
-    return;
+    return false;
   }
 
   size_t i;
@@ -171,4 +172,5 @@ bool testFileIO(fs::FS &fs, const char * path){
   end = millis() - start;
   Serial.printf("%u bytes written for %u ms\n", 2048 * 512, end);
   file.close();
+  return true;
 }
