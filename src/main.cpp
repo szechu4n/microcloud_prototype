@@ -2,39 +2,35 @@
 #include "painlessMesh.h"
 
 #include "smartCaravanNode.h"
+#include "wifiSecurity.h"
+#include "sdCardOps.h"
 
-#define   MESH_PREFIX     "MicroCloudMesh"
-#define   MESH_PASSWORD   "microcloud"
-#define   MESH_PORT       5555
 
 using namespace MicroCloudNode;
 
-// User stub
 void powerOnSelfTest();
-
-// Needed for painless library
 
 void setup()
 {
+  delay(10000); // delay 10 seconds in order to setup serial
   Serial.begin(115200);
-  delay(15000);
   powerOnSelfTest();
-  long secondsToWait = random(1,10000);
+  node.randomizeSeed();
   //mesh.setDebugMsgTypes( ERROR | MESH_STATUS | CONNECTION | SYNC | COMMUNICATION | GENERAL | MSG_TYPES | REMOTE ); // all types on
   mesh.setDebugMsgTypes( ERROR | STARTUP );  // set before init() so that you can see startup messages
 
-  mesh.init( MESH_PREFIX, MESH_PASSWORD, &userScheduler, MESH_PORT );
+  mesh.init(MESH_PREFIX, 
+          MESH_PASSWORD, 
+          &userScheduler, 
+          MESH_PORT,
+          WIFI_AP_STA, // Added this line, need to test to be sure it doesnt break anything.
+          WIFI_CHANNEL);
   mesh.onReceive(&receivedCallback);
   mesh.onNewConnection(&newConnectionCallback);
   mesh.onChangedConnections(&changedConnectionCallback);
   mesh.onNodeTimeAdjusted(&nodeTimeAdjustedCallback);
-  
-  heartBeatType hb = {
 
-  };
-
-  node.setHeartBeat(hb);
-  node.startHeartBeat();
+  // nodes need to assign tasks to self during this period
   //userScheduler.addTask();
   //taskSendMessage.enable();
 }
@@ -43,4 +39,131 @@ void loop()
 {
   // it will run the user scheduler as well
   mesh.update();
+}
+
+void powerOnSelfTest()
+{
+  Serial.println("***********************************************");
+  Serial.println("*-------------MicroCloud System Test----------*");
+  Serial.println("***********************************************");
+
+  // system chip check
+  esp_chip_info_t chip_info;
+  esp_chip_info(&chip_info);
+  if(chip_info.model != CHIP_ESP32)
+  {
+    Serial.println("* > Unsupported Chip Model.");
+    Serial.println("***********************************************");
+    while(1);
+  }
+  else
+  {
+    Serial.println("* > Chip Model:\t\tCHIP_ESP32");
+    Serial.println("* > Feature Mask:\t\t" + chip_info.features);
+    Serial.println("* > Cores:\t\t" + chip_info.cores);
+    Serial.println("* > Revision:\t\t" + chip_info.revision);
+  }
+
+  Serial.println("***********************************************"); // End system chip check
+  Serial.println("*---------------File System Test--------------*");
+  Serial.println("***********************************************");
+  if(!SD.begin(5))
+  {
+    Serial.println("* > Card Mount Failed.");
+    Serial.println("***********************************************");
+    while(1);
+  }
+  uint8_t cardType = SD.cardType();
+  if(cardType == CARD_NONE)
+  {
+    Serial.println("* > No SD Card attached.");
+    Serial.println("***********************************************");
+    while(1);
+  }
+  switch (cardType)
+  {
+  case CARD_MMC:
+    Serial.println("* > Card Type:\t\tmicroSD_MMC");
+    break;
+  case CARD_SD:
+    Serial.println("* > Card Type:\t\tmicroSD");
+    break;
+  case CARD_SDHC:
+    Serial.println("* > Card Type:\t\tmicroSD_HC");
+    break;
+  default:
+    Serial.println("* > Unsupported/Unknown Card Type.");
+    while(1);
+    break;
+  }
+  uint64_t cardSize = SD.cardSize()/(1024 * 1024);
+  Serial.println("* > SD Card Size:\t\t" + cardSize);
+  Serial.println("***********************************************");
+  Serial.println("* > Performing list directory test...");
+  if(!listDir(SD, "/", 0))
+  {
+    Serial.println("* > Critical Test Failed.");
+  }
+  Serial.println("* > Performing directory creation test...");
+  if(!createDir(SD, "/mydir"))
+  {
+    Serial.println("* > Critical Test Failed.");
+  }
+  Serial.println("* > Performing second list directory test...");
+  if(!listDir(SD, "/", 0))
+  {
+    Serial.println("* > Critical Test Failed.");
+  }
+  Serial.println("* > Performing directory removal test...");
+  if(!removeDir(SD, "/mydir"))
+  {
+    Serial.println("* > Critical Test Failed.");
+  }
+  Serial.println("* > Performing third list directory test...");
+  if(!listDir(SD, "/", 2))
+  {
+    Serial.println("* > Critical Test Failed.");
+  }
+  Serial.println("* > Performing file write test...");
+  if(!writeFile(SD, "/hello.txt", "Hello "))
+  {
+    Serial.println("* > Critical Test Failed.");
+  }
+  Serial.println("* > Performing file append test...");
+  if(!appendFile(SD, "/hello.txt", "World!\n"))
+  {
+    Serial.println("* > Test Failed.");
+  }
+  Serial.println("* > Performing file read test...");
+  if(!readFile(SD, "/hello.txt"))
+  {
+    Serial.println("* > Test Failed.");
+  }
+  Serial.println("* > Performing file rename test...");
+  if(!renameFile(SD, "/hello.txt", "/foo.txt"))
+  {
+    Serial.println("* > Test Failed.");
+  }
+  Serial.println("* > Performing file deletion test...");
+  if(!deleteFile(SD, "/foo.txt"))
+  {
+    Serial.println("* > Test Failed.");
+  }
+  Serial.println("* > Performing final IO test...");
+  if(!testFileIO(SD, "/test.txt"))
+  {
+    Serial.println("* > Test Failed.");
+  }
+  Serial.println("* > Total space: " + SD.totalBytes()/(1024 * 1024));
+  Serial.println("* > Total space: " + SD.usedBytes()/(1024 * 1024));
+  Serial.println("***********************************************");
+  // test rf?
+
+  // test FPGA
+  //    load basic bitstream onto FPGA
+  //    communicate with FPGA QSPI to tell it to flash LED certain colors
+  // 
+  Serial.println("***********************************************");
+  Serial.println("*---------------End System Test---------------*");
+  Serial.println("***********************************************");
 }

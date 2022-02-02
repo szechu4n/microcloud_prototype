@@ -12,7 +12,7 @@ namespace MicroCloudNode
 
     struct heartBeatType
     {
-
+        
     };
 
     struct nodeType
@@ -33,20 +33,19 @@ namespace MicroCloudNode
     {
         public:
             Node();
-            ~Node();
             void setHeartBeat(heartBeatType);
             heartBeatType getHeartBeat();
             void startHeartBeat();
             void setNodeType(nodeType);
             nodeType getNodeType();
+            void randomizeSeed();
+            void declareTask();
 
         private:
             heartBeatType heartBeatMessage;
             nodeType nodeMode;
-            void setTask(Task);
-            bool startTask();
             bool startTask(Task* const &task);
-            bool endTask();
+            bool endCurrentTask();
     };
 
     Node node;
