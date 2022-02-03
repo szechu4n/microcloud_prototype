@@ -18,7 +18,7 @@ PubSubClient mqttClient(mqttBroker, 1883, mqttCallback, wifiClient);
 
 void powerOnSelfTest();
 void heartBeat();
-Task taskHeartBeat(TASK_SECOND * 1 , TASK_FOREVER, &heartBeat);
+Task taskHeartBeat(TASK_SECOND * 20 , TASK_FOREVER, &heartBeat);
 
 // Specific Task Definitions go here
 Task C3Node::c3Task(TASK_SECOND * 1 , TASK_FOREVER, &C3Node::c3Loop);
@@ -27,6 +27,7 @@ void setup()
 {
   delay(10000); // delay 10 seconds in order to setup serial
   Serial.begin(115200);
+  sdmmc_host_pullup_en(1,4);
   powerOnSelfTest();
   node.randomizeSeed();
   //mesh.setDebugMsgTypes( ERROR | MESH_STATUS | CONNECTION | SYNC | COMMUNICATION | GENERAL | MSG_TYPES | REMOTE ); // all types on
@@ -66,7 +67,7 @@ void powerOnSelfTest()
   Serial.println("***********************************************");
   Serial.println("*-------------MicroCloud System Test----------*");
   Serial.println("***********************************************");
-
+  delay(250);
   // system chip check
   esp_chip_info_t chip_info;
   esp_chip_info(&chip_info);
@@ -79,27 +80,28 @@ void powerOnSelfTest()
   else
   {
     Serial.println("* > Chip Model:\t\tCHIP_ESP32");
-    Serial.println("* > Feature Mask:\t\t" + chip_info.features);
-    Serial.println("* > Cores:\t\t" + chip_info.cores);
-    Serial.println("* > Revision:\t\t" + chip_info.revision);
+    Serial.println("* > Feature Mask:\t" + String(chip_info.features));
+    Serial.println("* > Cores:\t\t" + String(chip_info.cores));
+    Serial.println("* > Revision:\t\t" + String(chip_info.revision));
   }
-
+  delay(250);
   Serial.println("***********************************************"); // End system chip check
   Serial.println("*---------------File System Test--------------*");
   Serial.println("***********************************************");
-  if(!SD.begin(5))
+  if(!SD_MMC.begin())
   {
     Serial.println("* > Card Mount Failed.");
     Serial.println("***********************************************");
     while(1);
   }
-  uint8_t cardType = SD.cardType();
+  uint8_t cardType = SD_MMC.cardType();
   if(cardType == CARD_NONE)
   {
     Serial.println("* > No SD Card attached.");
     Serial.println("***********************************************");
     while(1);
   }
+  delay(250); // delay to allow Serial to catch up
   switch (cardType)
   {
   case CARD_MMC:
@@ -117,89 +119,90 @@ void powerOnSelfTest()
     while(1);
     break;
   }
-  uint64_t cardSize = SD.cardSize()/(1024 * 1024);
-  Serial.println("* > SD Card Size:\t\t" + cardSize);
+  delay(250); // delay to allow Serial to catch up
+  uint64_t cardSize = SD_MMC.cardSize()/(1024 * 1024);
+  //Serial.println("* > SD Card Size:\t\t" + (cardSize));
   Serial.println("***********************************************");
   Serial.println("* > Performing list directory test...");
-  if(!listDir(SD, "/", 0))
+  if(!listDir(SD_MMC, "/", 0))
   {
     Serial.println("* > Critical Test Failed.");
     Serial.println("***********************************************");
     while(1);
   }
   Serial.println("* > Performing directory creation test...");
-  if(!createDir(SD, "/mydir"))
+  if(!createDir(SD_MMC, "/mydir"))
   {
     Serial.println("* > Critical Test Failed.");
     Serial.println("***********************************************");
     while(1);
   }
   Serial.println("* > Performing second list directory test...");
-  if(!listDir(SD, "/", 0))
+  if(!listDir(SD_MMC, "/", 0))
   {
     Serial.println("* > Critical Test Failed.");
     Serial.println("***********************************************");
     while(1);
   }
   Serial.println("* > Performing directory removal test...");
-  if(!removeDir(SD, "/mydir"))
+  if(!removeDir(SD_MMC, "/mydir"))
   {
     Serial.println("* > Critical Test Failed.");
     Serial.println("***********************************************");
     while(1);
   }
   Serial.println("* > Performing third list directory test...");
-  if(!listDir(SD, "/", 2))
+  if(!listDir(SD_MMC, "/", 2))
   {
     Serial.println("* > Critical Test Failed.");
     Serial.println("***********************************************");
     while(1);
   }
   Serial.println("* > Performing file write test...");
-  if(!writeFile(SD, "/hello.txt", "Hello "))
+  if(!writeFile(SD_MMC, "/hello.txt", "Hello "))
   {
     Serial.println("* > Critical Test Failed.");
     Serial.println("***********************************************");
     while(1);
   }
   Serial.println("* > Performing file append test...");
-  if(!appendFile(SD, "/hello.txt", "World!\n"))
+  if(!appendFile(SD_MMC, "/hello.txt", "World!\n"))
   {
     Serial.println("* > Critical Test Failed.");
     Serial.println("***********************************************");
     while(1);
   }
   Serial.println("* > Performing file read test...");
-  if(!readFile(SD, "/hello.txt"))
+  if(!readFile(SD_MMC, "/hello.txt"))
   {
     Serial.println("* > Critical Test Failed.");
     Serial.println("***********************************************");
     while(1);
   }
   Serial.println("* > Performing file rename test...");
-  if(!renameFile(SD, "/hello.txt", "/foo.txt"))
+  if(!renameFile(SD_MMC, "/hello.txt", "/foo.txt"))
   {
     Serial.println("* > Critical Test Failed.");
     Serial.println("***********************************************");
     while(1);
   }
   Serial.println("* > Performing file deletion test...");
-  if(!deleteFile(SD, "/foo.txt"))
+  if(!deleteFile(SD_MMC, "/foo.txt"))
   {
     Serial.println("* > Critical Test Failed.");
     Serial.println("***********************************************");
     while(1);
   }
-  Serial.println("* > Performing final IO test...");
-  if(!testFileIO(SD, "/test.txt"))
+  /*Serial.println("* > Performing final IO test...");
+  if(!testFileIO(SD_MMC, "/test.txt"))
   {
     Serial.println("* > Critical Test Failed.");
     Serial.println("***********************************************");
     while(1);
-  }
-  Serial.println("* > Total space: " + SD.totalBytes()/(1024 * 1024));
-  Serial.println("* > Total space: " + SD.usedBytes()/(1024 * 1024));
-  Serial.println("***********************************************");
+  }*/
+  //Serial.println("* > Total space: " + SD_MMC.totalBytes()/(1024 * 1024));
+  //Serial.println("* > Total space: " + SD_MMC.usedBytes()/(1024 * 1024));
+  //Serial.println("***********************************************");
   // test rf?
 
   // test FPGA

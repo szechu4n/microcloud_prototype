@@ -1,9 +1,14 @@
 #ifndef SDCARDOPS_H
 #define SDCARDOPS_H
 
-#include "FS.h"
-#include "SD.h"
-#include "SPI.h"
+//#include "FS.h"
+#include "SD_MMC.h"
+//#include "SPI.h"
+
+extern "C"
+{
+    #include "driver/sdmmc_host.h"
+};
 
 bool listDir(fs::FS &fs, const char * dirname, uint8_t levels);
 bool createDir(fs::FS &fs, const char * path);
