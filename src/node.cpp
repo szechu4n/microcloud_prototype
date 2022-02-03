@@ -1,25 +1,33 @@
 #include "node.h"
 
+
 namespace MicroCloudNode
 {
 
-    void heartBeat()
-    {
-
-    }
-
     void receivedCallback( uint32_t from, String &msg ) 
     {
-        Serial.printf("startHere: Received from %u msg=%s\n\r", from, msg.c_str());
+        // should split into different bws, where certain messages have a generic
+        //      ID, application specific messages each have a special ID set.
+        Serial.println("** > Received from " + String(from) + " : "  + msg.c_str());
     }
 
     void newConnectionCallback(uint32_t nodeId) 
     {
-        Serial.printf("--> startHere: New Connection, nodeId = %u\n\r", nodeId);
+        // believe nodes automatically know all nodes connected to the network, need to test.
+        Serial.println("** > New Connection, nodeId = " + nodeId);
     }
 
     void changedConnectionCallback() 
     {
+        // check if anyone dropped or joined
+        // if someone dropped
+        // check dropped task
+        // check current task
+        // consult priority list
+        // if must support task
+        // collect necessary data from other nodes
+        // start task
+        // check for other dropped tasks
         Serial.printf("Changed connections\n\r");
     }
 
@@ -30,15 +38,16 @@ namespace MicroCloudNode
 
     Node::Node()
     {
-
+        nodeMode.nodeName = "None";
+        nodeMode.task = NULL;
     }
 
-    Node::~Node()
+    void Node::declareTask()
     {
-
+        
     }
 
-    void Node::setHeartBeat(heartBeatType hb)
+    /*void Node::setHeartBeat(heartBeatType hb)
     {
 
     }
@@ -52,33 +61,35 @@ namespace MicroCloudNode
     {
         userScheduler.addTask(taskHeartBeat);
         taskHeartBeat.enable();
-    }
+    }*/
 
     void Node::setNodeType(const nodeType newNodeMode)
     {
+        if(strcmp(newNodeMode.nodeName,nodeMode.nodeName) == 0)
+            return;
+        endCurrentTask();
         nodeMode.nodeName = newNodeMode.nodeName;
         nodeMode.task = newNodeMode.task;
-        endTask();
         startTask((Task*) nodeMode.task);
     }
 
-    void Node::setTask(Task task)
+    nodeType Node::getNodeType()
     {
-
+        return nodeMode;
     }
 
-    bool Node::startTask()
+    void Node::randomizeSeed()
     {
-
+        randomSeed(analogRead(A0));
     }
 
-    bool Node::startTask(Task* const &task)
+    void Node::startTask(Task* const &task)
     {
         userScheduler.addTask(*task);
         task->enable();
     }
 
-    bool Node::endTask()
+    void Node::endCurrentTask()
     {
         Task* task = (Task*) nodeMode.task;
         userScheduler.deleteTask(*task);

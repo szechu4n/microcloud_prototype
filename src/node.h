@@ -1,18 +1,21 @@
 #ifndef NODE_H
 #define NODE_H
 
+// Task Scheduler Sleep Mode Declaration:
+#define _TASK_SLEEP_ON_IDLE_RUN
+
 #include <Arduino.h>
 #include <painlessMesh.h>
 
-Scheduler userScheduler; // to control your personal task
-painlessMesh  mesh;
+extern Scheduler userScheduler; // to control your personal task
+extern painlessMesh  mesh;
 
 namespace MicroCloudNode
 {
 
     struct heartBeatType
     {
-
+        
     };
 
     struct nodeType
@@ -20,9 +23,6 @@ namespace MicroCloudNode
         const char* nodeName;
         void * task;
     };
-
-    void heartBeat();
-    Task taskHeartBeat(TASK_SECOND * 1 , TASK_FOREVER, &heartBeat);
 
     void receivedCallback( uint32_t from, String &msg );
     void newConnectionCallback(uint32_t nodeId);
@@ -33,22 +33,19 @@ namespace MicroCloudNode
     {
         public:
             Node();
-            ~Node();
-            void setHeartBeat(heartBeatType);
-            heartBeatType getHeartBeat();
-            void startHeartBeat();
+            // void setHeartBeat(heartBeatType);
+            // heartBeatType getHeartBeat();
+            // void startHeartBeat();
             void setNodeType(nodeType);
             nodeType getNodeType();
+            void randomizeSeed();
+            void declareTask();
 
         private:
             heartBeatType heartBeatMessage;
             nodeType nodeMode;
-            void setTask(Task);
-            bool startTask();
-            bool startTask(Task* const &task);
-            bool endTask();
+            void startTask(Task* const &task);
+            void endCurrentTask();
     };
-
-    Node node;
 }
 #endif // NODE_H
