@@ -8,13 +8,18 @@ Description:
 #ifndef NAVNODE_H
 #define NAVNODE_H
 
-#include "node.h"
+//#include "node.h"
 
 #define SIZE  20 // number cols/rows in Grid
 
 // Function Declaration------------------------
-void readMap(char* file , int [SIZE][SIZE]);//DONE
-void printMap(int [SIZE][SIZE]);//DONE
+// void readMap(char* file , int [SIZE][SIZE]);  //DONE
+void readData(char* file , int [SIZE][SIZE], int [4]); // Done reads in map and dest and start coordinates
+// void readMap(char* file , int [SIZE][SIZE], int caravan::* , int destination::* );
+void printMap(int [SIZE][SIZE]);  //DONE
+
+
+void update_temp_map(int [SIZE][SIZE], int [SIZE][SIZE]); /// in progress
 
 int get_x_pos(int x_pos);       //can get x pos from text file
 int get_y_pos(int y_pos);       // can get pos from text file
@@ -27,23 +32,23 @@ void map_redraw(int map[SIZE][SIZE]); // redraws matrix based off direction valu
 
 struct caravan  // could be car if we want multiple seperate vehicles
 {
-    int x_pos_car;
-    int y_pos_car;
-    int fuel;   //could have certain amount of fuel tofind most effecient way.
-    bool on_path
+    int x_pos;
+    int y_pos;
+   int fuel;   //could have certain amount of fuel tofind most effecient way.
+    bool on_path;
     struct direction        // for direction we could just
     {                         // horizontal and veritcal and move diaganol
         bool north;            // if map arrays updated horizontally it might
         bool south;             // a little more difficult
         bool west;
         bool east;
-    }
-}
+    };
+};
 
 struct destination
 {
-    int x_pos_dest;
-    int x_pos_dest;
-}
+    int x_pos;
+    int y_pos;
+};
 
 #endif // NAVNODE_H
