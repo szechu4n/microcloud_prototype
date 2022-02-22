@@ -12,37 +12,18 @@ Description:
 
 #define SIZE  20 // number cols/rows in Grid
 
-// Function Declaration------------------------
-// void readMap(char* file , int [SIZE][SIZE]);  //DONE
-void readData(char* file , int [SIZE][SIZE], int [4]); // Done reads in map and dest and start coordinates
-// void readMap(char* file , int [SIZE][SIZE], int caravan::* , int destination::* );
-void printMap(int [SIZE][SIZE]);  //DONE
-
-
-void update_temp_map(int [SIZE][SIZE], int [SIZE][SIZE]); /// in progress
-
-int get_x_pos(int x_pos);       //can get x pos from text file
-int get_y_pos(int y_pos);       // can get pos from text file
-                                    // call  get_x_pos(caravan.x_pos_car); maybe
-bool get_direction(bool direction);
-int horiz_dist(int x_start, int x_dest);
-int vert_distance(int y_start, int y_dest);
-void move_direction(bool direct);   // only moves one direction at a time.
-void map_redraw(int map[SIZE][SIZE]); // redraws matrix based off direction value
-
+// Structure Declarations
 struct caravan  // could be car if we want multiple seperate vehicles
 {
     int x_pos;
     int y_pos;
-   int fuel;   //could have certain amount of fuel tofind most effecient way.
-    bool on_path;
-    struct direction        // for direction we could just
-    {                         // horizontal and veritcal and move diaganol
-        bool north;            // if map arrays updated horizontally it might
-        bool south;             // a little more difficult
-        bool west;
-        bool east;
-    };
+    //int fuel;   //could have certain amount of fuel tofind most effecient way.PROBS NOT VIABLE
+    //bool on_path;
+    bool north;
+    bool south;
+    bool east;
+    bool west;
+    
 };
 
 struct destination
@@ -50,5 +31,30 @@ struct destination
     int x_pos;
     int y_pos;
 };
+
+typedef struct BFSElement {
+    BFSElement(int i, int j)
+    {
+        this->i = i;
+        this->j = j;
+    }
+    int i;
+    int j;
+} BFSElement;
+
+// Function Declaration------------------------
+void readData(char* file , int [SIZE][SIZE], int [4]); // Done reads in map and dest and start coordinates
+void printMap(int [SIZE][SIZE]);  //DONE
+bool findPath(int [SIZE][SIZE]);
+//caravan move_direction(int x_start, int y_start, caravan , int [SIZE][SIZE], int [SIZE][SIZE]);
+caravan move_direction(caravan car1, int [SIZE][SIZE], int [SIZE][SIZE]);
+
+void update_temp_map(int [SIZE][SIZE], int [SIZE][SIZE]); /// in progress
+
+
+caravan get_direction(int x_start, int y_start, int x_stop , int y_stop, caravan car1);
+
+
+
 
 #endif // NAVNODE_H
