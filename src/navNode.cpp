@@ -222,12 +222,12 @@ caravan get_direction(int x_start, int y_start, int x_stop ,int y_stop ,caravan 
         car.west = false;
     }
     if (horiz_dist < 0){
-        car.east = true;
-        car.west = false;
+        car.east = false;
+        car.west = true;
     }
     if (vert_dist < 0){
-        car.north = true;
-        car.south = false;
+        car.north = false;
+        car.south = true;
     }
     if (vert_dist > 0){
         car.north = true;
