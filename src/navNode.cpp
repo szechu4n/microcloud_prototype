@@ -2,19 +2,13 @@
 Austin Pollard
 CPE496/496
 File: navNode.cpp   MOST RECENT COPY for Austin 2-3-22
-Compiler: g++ 9.3.0 | Compile with: g++ navNode.cpp -o navNode
+Compiler: g++ 9.3.0 | Compile with: g++ navNode.cpp navNode.h -o navNode
                        Run with : ./navNode Map.txt"
 
 Functionality: reads in 'Map.txt' and populates 2-d array
                 also prints matrix to terminal
                 will need to handle pathfinding
 
-Description: *-------NEEDS MORE DISCUSSION---------*
-    1. Will need to read in variabele caravan x and y cooridatntes
-            read in destincation.x_pos and .y_pos 
-    2. change pix_map[destination.x_pos][destination.y_pos] to some int that represents caravan
-
-    x. will need to have algorithm to see if there is path from 
 */
 
 //#include <Arduino.h>
@@ -31,11 +25,6 @@ using namespace std;
 
 #define SIZE  20 // number cols/rows in Grid
 
-
-//void readMap(char* file , int [SIZE][SIZE]);
-//void printMap(int [SIZE][SIZE]);
-
-
 int main(int argc, char* argv[])
 {
      // init structures
@@ -48,16 +37,6 @@ int main(int argc, char* argv[])
     int coord[4];    
     // string init
     char* mapFile = argv[1];
-   
-    // preset x and y cooridantes for 
-    // car1.x_pos = 1;
-    // car1.y_pos = 15;
-    // dest.x_pos = 4;
-    // dest.y_pos = 10;
-
-    // open map file
-    //ifstream mapFile;
-    //mapFile.open(argv[1]);
     if (argc == 1){
         printf("Must enter text file name in command line\n./<executbale name> Map.txt\n");
         return -1;
@@ -76,20 +55,14 @@ int main(int argc, char* argv[])
                 dest.x_pos = coord[2];
                 dest.y_pos = coord[3];
                 pix_map[car1.y_pos][car1.x_pos] = 3;    // start point    // pix_map[i][j]
-                //cout << "\npix_map[" << car1.y_pos -1 << "][" << car1.x_pos << "] = "<< pix_map[car1.y_pos - 1][car1.x_pos] << endl;    // should be 1, is 0 after get_direction is called for some reason
                 pix_map[dest.y_pos][dest.x_pos] = 2;    // stop point     // pix_map[y][x]
-                //printMap(pix_map);
                 update_temp_map(pix_map, temp_map);
-                //printMap(temp_map);
                 printf("Is there a path from start[%d][%d] to destination[%d][%d]?: ", car1.y_pos, car1.x_pos, dest.y_pos, dest.x_pos);
                 (findPath(pix_map) == true) ? cout << "Yes\n"       // sets path elements =0,so need to set map = to temp_map
                                     : cout << "No" << endl;
                 update_temp_map(temp_map, pix_map);
-                //get_direction(car1.x_pos, car1.y_pos, dest.x_pos , dest.y_pos , *car1);
                 car1 = get_direction(car1.x_pos, car1.y_pos, dest.x_pos , dest.y_pos , car1);
-                //cout << "\nafter get_direction call pix_map[" << car1.y_pos -1 << "][" << car1.x_pos << "] = "<< pix_map[car1.y_pos - 1][car1.x_pos] << endl;
                 printMap(pix_map);
-                //cout << car1.north << endl << car1.south << car1.east << endl << car1.west<< endl; 
                 if (car1.north == true){
                     cout << "Destination is North\n";
                     }
@@ -102,29 +75,15 @@ int main(int argc, char* argv[])
                 if (car1.west == true){
                     cout << "Destination is West\n";
                     } 
-                //cout <<"Caravan x-pos: " << car1.x_pos << ".\nCaravan y-pos: "<< car1.y_pos << ".\nDestination x-pos: "<< dest.x_pos << ".\nDestination y-pos: "<< dest.y_pos << ".\n";
                 }
                 else {
                     cout << "WRONG FILE INPUT.\nShould be ./<executbale name> Map.txt\n";
                     return -2;
                 }
-                // while((car1.x_pos != dest.x_pos) & (car1.y_pos != dest.y_pos)){
-                //     car1 = get_direction(car1.x_pos, car1.y_pos, dest.x_pos , dest.y_pos , car1);
-                //     move_direction( car1, pix_map, temp_map);
-                // }
                 while(pix_map[dest.y_pos][dest.x_pos] != 4){
                     car1 = get_direction(car1.x_pos, car1.y_pos, dest.x_pos , dest.y_pos , car1);
                     car1 = move_direction( car1, pix_map, temp_map);            
                 }
-                //cout << pix_map[car1.y_pos][car1.x_pos] << endl;    // why is outputting 0 instead of 1? --> find path function updates array (issue fixed with temp_array)
-                //cout << "\npix_map[" << car1.y_pos -1 << "][" << car1.x_pos << "] = "<< pix_map[car1.y_pos - 1][car1.x_pos] << endl;    // why is outputting 0 instead of 1?
-                //cout << pix_map[1][1] << endl;
-                //cout << pix_map[dest.y_pos][dest.x_pos] << endl;    // destination output is correct
-                // for (int i = 0; i < 10; i++){
-                //     cout << "\nPrint number : " << i + 1 << endl;
-                //     car1 = get_direction(car1.x_pos, car1.y_pos, dest.x_pos , dest.y_pos , car1);
-                //     car1 = move_direction(car1, pix_map, temp_map);
-                // }
                 cout << "Navigation Complete!!\n";
                 return 0;
         
@@ -152,7 +111,6 @@ void readData( char* file, int map[SIZE][SIZE], int coord[4]){  // used array to
 
 
 void printMap(int a[SIZE][SIZE]) {
-    //system("clear");
     cout << "\n[i] |[j]";
     for(int j = 0; j < SIZE; j++) {
         cout << left << setw(4) << j;
@@ -286,21 +244,6 @@ caravan get_direction(int x_start, int y_start, int x_stop ,int y_stop ,caravan 
     return car;
 }
 
-
-
-/*
-------------------PSUEDO CODE FOR pathTraverser---------------------------------------
--use horiz_dist and vert_distance to figure out the direction and we can assign
-    a value for how many elements (clicks) it is away in eaither the horizontal distance.
-- then pick the corresponding howizonta
-----if horizontal distance greater start with breadth in direction of horizontal
-        - breadth should have [][j] decrease for west, and increase for east
-       - search until you reach wall then repeat but with  depth vetical until reach wall
-        - repeat until destination is found
-        -repeat until destination value is reached. 
-        - depth should have [i][] decrease for north()i-=, and increase for south(i+=)
-        - needs to have map reprinted for each carvan unit of travel
-*/
  
 bool findPath(int M[SIZE][SIZE])
 {
@@ -358,3 +301,4 @@ bool findPath(int M[SIZE][SIZE])
     // return false
     return false;
 }
+ 
