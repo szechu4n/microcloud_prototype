@@ -1,10 +1,11 @@
 #include <Arduino.h>
 #include "painlessMesh.h"
+#include "esp32-hal-bt.h"
 
+#include "microCloudConstants.h"
 #include "smartCaravanNode.h"
 #include "wifiSecurity.h"
 #include "sdCardOps.h"
-
 
 using namespace MicroCloudNode;
 
@@ -21,12 +22,16 @@ void heartBeat();
 Task taskHeartBeat(TASK_SECOND * 20 , TASK_FOREVER, &heartBeat);
 
 // Specific Task Definitions go here
-Task C3Node::c3Task(TASK_SECOND * 1 , TASK_FOREVER, &C3Node::c3Loop);
+Task C3Node::c3Task(TASK_SECOND * 0.25 , TASK_FOREVER, &C3Node::c3Update);
+//Task NavNode::navTask(TASK_SECOND * 1, TASK_FOREVER, &NavNode::navUpdate);
+//Task DsNode::dsTask(TASK_SECOND * 1, TASK_FOREVER, &dsNode::dsUpdate);
+//Task DcNode::dcTask(TASK_SECOND * 1, TASK_FOREVER, &dcNode::dcUpdate);
 
 void setup()
 {
   delay(10000); // delay 10 seconds in order to setup serial
   Serial.begin(115200);
+  btStop();
   sdmmc_host_pullup_en(1,4);
   powerOnSelfTest();
   node.randomizeSeed();
@@ -121,8 +126,9 @@ void powerOnSelfTest()
   }
   delay(250); // delay to allow Serial to catch up
   uint64_t cardSize = SD_MMC.cardSize()/(1024 * 1024);
-  //Serial.println("* > SD Card Size:\t\t" + (cardSize));
+  Serial.printf("* > SD Card Size:\t\t%" PRIu64 "\n\r" + (cardSize));
   Serial.println("***********************************************");
+#if DEBUG
   Serial.println("* > Performing list directory test...");
   if(!listDir(SD_MMC, "/", 0))
   {
@@ -200,9 +206,10 @@ void powerOnSelfTest()
     Serial.println("***********************************************");
     while(1);
   }*/
-  //Serial.println("* > Total space: " + SD_MMC.totalBytes()/(1024 * 1024));
-  //Serial.println("* > Total space: " + SD_MMC.usedBytes()/(1024 * 1024));
-  //Serial.println("***********************************************");
+#endif
+  Serial.printf("* > Total space: %" PRIu64 "\n\r", SD_MMC.totalBytes()/(1024 * 1024));
+  Serial.printf("* > Used space: %" PRIu64 "\n\r", SD_MMC.usedBytes()/(1024 * 1024));
+  Serial.println("***********************************************");
   // test rf?
 
   // test FPGA
