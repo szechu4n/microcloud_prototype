@@ -24,7 +24,7 @@ void MicroCloudNode::C3Node::c3Setup()
     mesh.setContainsRoot(true);
 }
 
-void MicroCloudNode::C3Node::c3Loop()
+void MicroCloudNode::C3Node::c3Update()
 {
     c3Setup();
     mqttClient.loop();

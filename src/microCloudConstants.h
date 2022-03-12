@@ -1,0 +1,6 @@
+#ifndef MICROCLOUD_CONSTANTS_H
+#define MICROCLOUD_CONSTANTS_H
+
+#define DEBUG 1
+
+#endif

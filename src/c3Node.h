@@ -19,7 +19,7 @@ namespace MicroCloudNode
     namespace C3Node
     {
         void c3Setup();
-        void c3Loop();
+        void c3Update();
         extern Task c3Task;
             /*(TASK_SECOND * 1 , TASK_FOREVER, &c3Loop)*/
     }
