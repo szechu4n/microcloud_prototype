@@ -24,16 +24,15 @@ Task taskHeartBeat(TASK_SECOND * 20 , TASK_FOREVER, &heartBeat);
 // Specific Task Definitions go here
 Task C3Node::c3Task(TASK_SECOND * 0.25 , TASK_FOREVER, &C3Node::c3Update);
 //Task NavNode::navTask(TASK_SECOND * 1, TASK_FOREVER, &NavNode::navUpdate);
-//Task DsNode::dsTask(TASK_SECOND * 1, TASK_FOREVER, &dsNode::dsUpdate);
-//Task DcNode::dcTask(TASK_SECOND * 1, TASK_FOREVER, &dcNode::dcUpdate);
+//Task DsNode::dataTask(TASK_SECOND * 1, TASK_FOREVER, &dsNode::dsUpdate);
 
 void setup()
 {
   delay(10000); // delay 10 seconds in order to setup serial
   Serial.begin(115200);
   btStop();
-  sdmmc_host_pullup_en(1,4);
-  powerOnSelfTest();
+  //sdmmc_host_pullup_en(1,4);
+  //powerOnSelfTest();
   node.randomizeSeed();
   //mesh.setDebugMsgTypes( ERROR | MESH_STATUS | CONNECTION | SYNC | COMMUNICATION | GENERAL | MSG_TYPES | REMOTE ); // all types on
   mesh.setDebugMsgTypes( ERROR | STARTUP );  // set before init() so that you can see startup messages
@@ -67,7 +66,7 @@ void heartBeat()
   mesh.sendBroadcast(msg);
 }
 
-void powerOnSelfTest()
+/*void powerOnSelfTest()
 {
   Serial.println("***********************************************");
   Serial.println("*-------------MicroCloud System Test----------*");
@@ -205,7 +204,7 @@ void powerOnSelfTest()
     Serial.println("* > Critical Test Failed.");
     Serial.println("***********************************************");
     while(1);
-  }*/
+  }
 #endif
   Serial.printf("* > Total space: %" PRIu64 "\n\r", SD_MMC.totalBytes()/(1024 * 1024));
   Serial.printf("* > Used space: %" PRIu64 "\n\r", SD_MMC.usedBytes()/(1024 * 1024));
@@ -220,3 +219,4 @@ void powerOnSelfTest()
   Serial.println("*---------------End System Test---------------*");
   Serial.println("***********************************************");
 }
+*/

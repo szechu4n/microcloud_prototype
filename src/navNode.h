@@ -12,24 +12,28 @@ Description:
 
 #define SIZE  20 // number cols/rows in Grid
 
+enum CarDirection {
+    North,
+    West,
+    South,
+    East,
+    Done
+};
+
 // Structure Declarations
 struct caravan  // could be car if we want multiple seperate vehicles
 {
-    int x_pos;
-    int y_pos;
+    char x_pos;
+    char y_pos;
     //int fuel;   //could have certain amount of fuel tofind most effecient way.PROBS NOT VIABLE
     //bool on_path;
-    bool north;
-    bool south;
-    bool east;
-    bool west;
-    
+    enum CarDirection direction;
 };
 
 struct destination
 {
-    int x_pos;
-    int y_pos;
+    char x_pos;
+    char y_pos;
 };
 
 typedef struct BFSElement {

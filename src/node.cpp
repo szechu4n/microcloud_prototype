@@ -8,6 +8,15 @@ namespace MicroCloudNode
     {
         // should split into different bws, where certain messages have a generic
         //      ID, application specific messages each have a special ID set.
+        #if ENCRYPTION
+        // put on QSPI (how the fuck do we do that)
+        #else 
+        // split message into parts
+        // check message type
+        // if less than 10, do common processing
+        // else do node specific processing (from node struct)
+        #endif
+
         Serial.println("** > Received from " + String(from) + " : "  + msg.c_str());
     }
 

@@ -13,8 +13,14 @@ void mqttCallback(char* topic, byte* payload, unsigned int length)
     String msg = String(cleanPayload);
     free(cleanPayload);
 
+    //c3ProcessMqttMessage(msg);
     // message specific processing goes here.
 }
+
+/*void MicroCloudNode::C3Node::c3ProcessMqttMessage(const String & msg)
+{
+    if (msg)
+}*/
 
 void MicroCloudNode::C3Node::c3Setup()
 {
@@ -35,7 +41,7 @@ void MicroCloudNode::C3Node::c3Update()
         //Serial.printf("My IP is ")
         if(mqttClient.connect("painlessMeshClient"))
         {
-            mqttClient.publish("painlessMesh/from/gateway", "Ready!");
+            mqttClient.publish("painlessMesh/from/gateway", "System Online.");
             mqttClient.subscribe("painlessMesh/to/#");
         }
     }

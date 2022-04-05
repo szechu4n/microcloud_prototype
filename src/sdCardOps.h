@@ -1,6 +1,6 @@
 #ifndef SDCARDOPS_H
 #define SDCARDOPS_H
-
+/*
 //#include "FS.h"
 #include "SD_MMC.h"
 //#include "SPI.h"
@@ -19,5 +19,5 @@ bool appendFile(fs::FS &fs, const char * path, const char * message);
 bool renameFile(fs::FS &fs, const char * path1, const char * path2);
 bool deleteFile(fs::FS &fs, const char * path);
 bool testFileIO(fs::FS &fs, const char * path);
-
+*/
 #endif // SDCARDOPS_H

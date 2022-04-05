@@ -1,5 +1,5 @@
 #include "sdCardOps.h"
-
+/*
 bool listDir(fs::FS &fs, const char * dirname, uint8_t levels){
   Serial.printf("* > Listing directory: %s\n\r", dirname);
 
@@ -173,4 +173,4 @@ bool testFileIO(fs::FS &fs, const char * path){
   Serial.printf("%u bytes written for %u ms\n\r", 2048 * 512, end);
   file.close();
   return true;
-}
+}*/

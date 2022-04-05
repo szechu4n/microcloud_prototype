@@ -25,7 +25,12 @@ using namespace std;
 
 #define SIZE  20 // number cols/rows in Grid
 
-int main(int argc, char* argv[])
+char map[SIZE][SIZE];
+struct destination start;
+struct destination finish;
+struct caravan car1;
+
+/*int main(int argc, char* argv[])
 {
      // init structures
     struct caravan car1;
@@ -76,16 +81,17 @@ int main(int argc, char* argv[])
                     cout << "Destination is West\n";
                     } 
                 }
-                else {
-                    cout << "WRONG FILE INPUT.\nShould be ./<executbale name> Map.txt\n";
-                    return -2;
-                }
-                while(pix_map[dest.y_pos][dest.x_pos] != 4){
-                    car1 = get_direction(car1.x_pos, car1.y_pos, dest.x_pos , dest.y_pos , car1);
-                    car1 = move_direction( car1, pix_map, temp_map);            
-                }
-                cout << "Navigation Complete!!\n";
-                return 0;
+            else 
+            {
+                cout << "WRONG FILE INPUT.\nShould be ./<executbale name> Map.txt\n";
+                return -2;
+            }
+            while(pix_map[dest.y_pos][dest.x_pos] != 4){
+                car1 = get_direction(car1.x_pos, car1.y_pos, dest.x_pos , dest.y_pos , car1);
+                car1 = move_direction( car1, pix_map, temp_map);            
+            }
+            cout << "Navigation Complete!!\n";
+            return 0;
         
     }
 
@@ -94,6 +100,63 @@ int main(int argc, char* argv[])
 
     return 0;
 }
+
+
+void navMsgCallback(char * message)
+{
+    for (int i = 0; i < SIZE; i++)
+    {
+        for (int j = 0; i < SIZE; i++)
+        {
+            map[i][j] = message[i + j];
+        }
+    }
+    start.x_pos = message[SIZE * 2];
+    start.y_pos = message[SIZE * 2 + 1];
+    finish.x_pos = message[SIZE * 2 + 2];
+    finish.y_pos = message[SIZE * 2 + 3];    
+}
+
+void navMapPlan()
+{
+    map[start.y_pos][start.x_pos] = 3;    // start point    // pix_map[i][j]
+    map[finish.y_pos][finish.x_pos] = 2;    // stop point     // pix_map[y][x]
+    //update_temp_map(pix_map, temp_map);
+    printf("Is there a path from start[%d][%d] to destination[%d][%d]?: ", car1.y_pos, car1.x_pos, dest.y_pos, dest.x_pos);
+    findPath(map) ? cout << "Yes\n"       // sets path elements =0,so need to set map = to temp_map
+                        : cout << "No" << endl;
+    //update_temp_map(temp_map, pix_map);
+    car1 = changeDirection(car1.x_pos, car1.y_pos, dest.x_pos , dest.y_pos , car1);
+    while(map[dest.y_pos][dest.x_pos] != 4)
+    {
+        bool boundsSuccess = checkBounds();
+        bool directionSuccess = checkDirection();
+        if (boundsSuccess && directionSuccess)
+        {
+            move_direction();
+        }
+        else if (!boundsSuccess)
+        {
+            direction = (direction + 2) % 4;
+        }
+        else if (!directionSuccess)
+        {
+            direction = (direction + 1) % 4;
+        }
+        
+        
+        
+        changeDirection(&car1, finish);
+        car1 = move_direction(car1, pix_map, temp_map);            
+    }
+    cout << "Navigation Complete!!\n";
+}
+
+void navStepSend()
+{
+
+}
+
 
 
 void readData( char* file, int map[SIZE][SIZE], int coord[4]){  // used array to read in car and dest cooridanates since they are seperate structs
@@ -134,76 +197,72 @@ void update_temp_map(int a[SIZE][SIZE], int a_temp[SIZE][SIZE]){
     }
 }
 
-caravan move_direction(caravan car, int a[SIZE][SIZE], int a_temp[SIZE][SIZE]){   // moves one elemenent then reprints map
-    if (car.north == true){
-        if(a[car.y_pos - 1][car.x_pos] == 1){
-            a[car.y_pos][car.x_pos] = 1;//a_temp[car.y_pos][car.x_pos];    // replace current element (car1 position) with 1
-            car.y_pos = car.y_pos - 1;      // sets car.y_pos to 1 element above curent location
-            a[car.y_pos][car.x_pos] = 3;
-            printMap(a);
-            return car;
+void move_direction(caravan * car, int a[SIZE][SIZE], int a_temp[SIZE][SIZE]){   // moves one elemenent then reprints map
+    if (car->direction == North){
+        if(a[car->y_pos - 1][car->x_pos] == 1){
+            a[car->y_pos][car->x_pos] = 1;//a_temp[car->y_pos][car->x_pos];    // replace current element (car1 position) with 1
+            car->y_pos = car->y_pos - 1;      // sets car->y_pos to 1 element above curent location
+            a[car->y_pos][car->x_pos] = 3;
+            return;
         }
-        if(a[car.y_pos - 1][car.x_pos] == 0){
-            car.north == false;
+        if(a[car->y_pos - 1][car->x_pos] == 0){
+            car->direction = South;
         }
-        if(a[car.y_pos - 1][car.x_pos] == 2){
-            a[car.y_pos][car.x_pos] = 1;
-            car.y_pos = car.y_pos - 1;      
-            a[car.y_pos][car.x_pos] = 4;    // element value of 4 means caravan has reached destination.
+        if(a[car->y_pos - 1][car->x_pos] == 2){
+            a[car->y_pos][car->x_pos] = 1;
+            car->y_pos = car->y_pos - 1;      
+            a[car->y_pos][car->x_pos] = 4;    // element value of 4 means caravan has reached destination.
         }
     }    
-    if (car.south == true){
-        if(a[car.y_pos + 1][car.x_pos] == 1){
-            a[car.y_pos][car.x_pos] = 1;//a_temp[car.y_pos][car.x_pos];
-            car.y_pos = car.y_pos + 1;
-            a[car.y_pos][car.x_pos] = 3;
-            printMap(a);
-            return car;
+    if (car->direction == true){
+        if(a[car->y_pos + 1][car->x_pos] == 1){
+            a[car->y_pos][car->x_pos] = 1;//a_temp[car->y_pos][car->x_pos];    // replace current element (car1 position) with 1
+            car->y_pos = car->y_pos + 1;      // sets car->y_pos to 1 element above curent location
+            a[car->y_pos][car->x_pos] = 3;
+            return;
+        }
 
+        else if(a[car->y_pos + 1][car->x_pos] == 0){
+            car->direction = false;
         }
-        else if(a[car.y_pos + 1][car.x_pos] == 0){
-            car.south = false;
-        }
-        if(a[car.y_pos + 1][car.x_pos] == 2){
-            a[car.y_pos][car.x_pos] = 1;
-            car.y_pos = car.y_pos + 1;      
-            a[car.y_pos][car.x_pos] = 4;    // element value of 4 means caravan has reached destination.
+        if(a[car->y_pos + 1][car->x_pos] == 2){
+            a[car->y_pos][car->x_pos] = 1;
+            car->y_pos = car->y_pos + 1;      
+            a[car->y_pos][car->x_pos] = 4;    // element value of 4 means caravan has reached destination.
         }
     }
-    if (car.east == true){
-        if(a[car.y_pos][car.x_pos + 1] == 1){
-            a[car.y_pos][car.x_pos] = 1;//a_temp[car.y_pos][car.x_pos];
-            car.x_pos = car.x_pos + 1;
-            a[car.y_pos][car.x_pos] = 3;
-            printMap(a);
-            return car;
+    if (car->direction == true){
+        if(a[car->y_pos][car->x_pos + 1] == 1){
+            a[car->y_pos][car->x_pos] = 1;//a_temp[car->y_pos][car->x_pos];    // replace current element (car1 position) with 1
+            car->y_pos = car->x_pos + 1;      // sets car->y_pos to 1 element above curent location
+            a[car->y_pos][car->x_pos] = 3;
+            return;
+        }
 
+        if(a[car->y_pos][car->x_pos + 1] == 0){
+            car->direction = false;
         }
-        if(a[car.y_pos][car.x_pos + 1] == 0){
-            car.east = false;
-        }
-        if(a[car.y_pos][car.x_pos + 1] == 2){
-            a[car.y_pos][car.x_pos] = 1;
-            car.x_pos = car.x_pos + 1;      
-            a[car.y_pos][car.x_pos] = 4;    // element value of 4 means caravan has reached destination.
+        if(a[car->y_pos][car->x_pos + 1] == 2){
+            a[car->y_pos][car->x_pos] = 1;
+            car->x_pos = car->x_pos + 1;      
+            a[car->y_pos][car->x_pos] = 4;    // element value of 4 means caravan has reached destination.
         }
     }
-    if (car.west == true){
-        if(a[car.y_pos][car.x_pos - 1] == 1){
-            a[car.y_pos][car.x_pos] = 1;//a_temp[car.y_pos][car.x_pos];
-            car.x_pos = car.x_pos - 1;
-            a[car.y_pos][car.x_pos] = 3;
-            printMap(a);
-            return car;
+    if (car->direction == true){
+        if(a[car->y_pos][car->x_pos - 1] == 1){
+            a[car->y_pos][car->x_pos] = 1;//a_temp[car->y_pos][car->x_pos];    // replace current element (car1 position) with 1
+            car->y_pos = car->x_pos - 1;      // sets car->y_pos to 1 element above curent location
+            a[car->y_pos][car->x_pos] = 3;
+            return;
+        }
 
+        if(a[car->y_pos][car->x_pos -1] == 0){
+            changeDirection(&car, dest);
         }
-        if(a[car.y_pos][car.x_pos -1] == 0){
-            car.west = false;
-        }
-        if(a[car.y_pos][car.x_pos - 1] == 2){
-            a[car.y_pos][car.x_pos] = 1;
-            car.x_pos = car.x_pos - 1;      
-            a[car.y_pos][car.x_pos] = 4;    // element value of 4 means caravan has reached destination.
+        if(a[car->y_pos][car->x_pos - 1] == 2){
+            a[car->y_pos][car->x_pos] = 1;
+            car->x_pos = car->x_pos - 1;      
+            a[car->y_pos][car->x_pos] = 4;    // element value of 4 means caravan has reached destination.
         }
     }
     printMap(a);
@@ -212,40 +271,33 @@ caravan move_direction(caravan car, int a[SIZE][SIZE], int a_temp[SIZE][SIZE]){ 
 }
 
 
-caravan get_direction(int x_start, int y_start, int x_stop ,int y_stop ,caravan car){
-    int horiz_dist = x_stop - x_start;
-    int vert_dist = y_start - y_stop;
-    cout << "horiz_dist: "<<horiz_dist<<" vert_dist: "<< vert_dist<< endl;
-    if (horiz_dist > 0){
-        car.east = true;
-        //cout << car.west << endl;
-        car.west = false;
+void changeDirection(caravan * car, const destination & dest){
+    int horiz_dist = dest.x_pos - car->x_pos;
+    int vert_dist = dest.y_pos - car->y_pos;
+    if (horiz_dist > 0)
+    {
+        car->direction = East;
     }
-    if (horiz_dist < 0){
-        car.east = false;
-        car.west = true;
+    else if (horiz_dist < 0)
+    {
+        car->direction = West;
     }
-    if (vert_dist < 0){
-        car.north = false;
-        car.south = true;
+    else if (vert_dist < 0)
+    {
+        car->direction = South;
     }
-    if (vert_dist > 0){
-        car.north = true;
-        car.south = false;
+    else if (vert_dist > 0)
+    {
+        car->direction = North;
     }
-    else if (horiz_dist == 0){
-        car.east = false;
-        car.west = false;
+    else
+    {
+        car->direction = Done;
     }
-    else if (vert_dist == 0){
-        car.north = false;
-        car.south = false;
-    }
-    return car;
 }
 
  
-bool findPath(int M[SIZE][SIZE])
+bool findPath(char M[SIZE][SIZE])
 {
     // 1) Create BFS queue q
     queue<BFSElement> q;
@@ -300,5 +352,5 @@ bool findPath(int M[SIZE][SIZE])
     // then there was no element M[i][j] which is 2, then
     // return false
     return false;
-}
+}*/
  
